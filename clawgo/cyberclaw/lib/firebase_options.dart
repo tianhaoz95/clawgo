@@ -64,7 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '782078404687',
     projectId: 'cyberclaw-go',
     storageBucket: 'cyberclaw-go.firebasestorage.app',
-    iosBundleId: 'com.example.cyberclaw',
+    iosBundleId: 'com.hejitech.cyberclaw',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -73,7 +73,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '782078404687',
     projectId: 'cyberclaw-go',
     storageBucket: 'cyberclaw-go.firebasestorage.app',
-    iosBundleId: 'com.example.cyberclaw',
+    iosBundleId: 'com.hejitech.cyberclaw',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
