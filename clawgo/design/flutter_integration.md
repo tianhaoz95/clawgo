@@ -44,7 +44,7 @@ IronClaw's modular design allows for high reuse of existing components:
 - **Agent Execution Loop:** The core reasoning and tool-execution loop.
 - **LibSQL Database:** The `libsql` feature provides an embedded SQLite-compatible backend, perfect for mobile (iOS/Android) and desktop storage.
 - **LLM Provider Chain:** All retry logic, smart routing, and failover work out-of-the-box.
-- **Tool Registry:** Both builtin and MCP/WASM tools can be supported, though WASM may require specific configuration on mobile.
+- **LibSQL Database:** The existing `LibSqlBackend` implementation from the `ironclaw::db::libsql` module will be used directly. It provides an embedded SQLite-compatible backend, perfect for mobile (iOS/Android) and desktop storage.
 
 ## 3. The Bridge Layer (ironclaw_flutter)
 
@@ -57,9 +57,18 @@ Wrapping the `Agent` and `AppComponents` in a thread-safe handle (e.g., `Arc<Mut
 ```rust
 pub async fn init_agent(config_data: ConfigData, app_dir: String) -> Result<AgentHandle> {
     // 1. Setup paths (DB, logs, tools) using app_dir from Flutter
-    // 2. Build AppComponents via AppBuilder
-    // 3. Initialize Agent
-    // 4. Return handle
+    let db_path = Path::new(&app_dir).join("ironclaw.db");
+
+    // 2. Initialize the EXISTING LibSqlBackend from ironclaw core
+    let backend = LibSqlBackend::new_local(&db_path).await?;
+    let db = Arc::new(backend);
+
+    // 3. Build AppComponents via AppBuilder, injecting the pre-init DB
+    let mut builder = AppBuilder::new(config_data, ...);
+    builder.with_database(db);
+    let components = builder.build_all().await?;
+
+    // 4. Initialize Agent and return handle
 }
 ```
 
@@ -69,36 +78,31 @@ Using FRB v2's `StreamSink` to push real-time updates to Flutter:
 - `ToolCall`: To show which tool is currently running.
 - `StatusUpdate`: For system-level logs and heartbeat status.
 
+### 3. The Flutter Channel (Bridge Side)
+To bridge the core `Agent` to the Flutter UI without modifying the `ironclaw` project, we implement the `ironclaw::channels::Channel` trait on a local `FlutterChannel` struct within the bridge crate.
+
+- **Orphan Rule Compliance:** By defining a local struct (`FlutterChannel`) and implementing the foreign trait (`Channel`), we avoid sync issues with the upstream core.
+- **Event Routing:** The `FlutterChannel` holds a `StreamSink<ChatEvent>`, allowing it to catch `StatusUpdate` and `OutgoingResponse` calls from the core and pipe them directly into the Flutter UI's asynchronous stream.
+
 ## 4. Platform-Specific Considerations
 
 ### Database (LibSQL)
-- On mobile, the database file must reside in the application's documents directory.
-- `flutter_rust_bridge` will pass these paths from Dart to Rust during initialization.
-
-### Secrets & Security
-- **Native Keychains:** IronClaw already supports macOS Keychain and Linux Secret Service.
-- **Mobile Support:** We may need to implement a `SecretsStore` adapter that calls back into Dart to use `flutter_secure_storage` for iOS/Android, or extend the Rust side to support iOS Keychain and Android Keystore.
-
-### WASM Sandbox (Wasmtime)
-- **Challenge:** `wasmtime` (JIT) is restricted on iOS and some Android configurations.
-- **Solution:** 
-  1. Use Wasmtime's interpreter mode (slower but compliant).
-  2. Or, disable WASM tools on mobile while keeping them for Desktop.
-  3. Or, run critical WASM tools as "Builtin" tools compiled directly into the binary.
-
-### Network
-- `reqwest` with `rustls` is generally cross-platform compatible.
+- **Reuse:** We use the native `LibSqlBackend` from the core project without modification to ensure schema and migration parity.
+- **Pathing:** On mobile, the database file must reside in the application's documents directory. Flutter's `path_provider` will retrieve this location and pass it to the bridge during `init_agent`.
+- **Injection:** By using `AppBuilder::with_database(db)`, we skip the core's default database initialization (which usually relies on environment variables or config files) and provide our platform-specific handle directly.
 
 ## 5. Integration Plan
 
 ### Phase 1: Bridge Prototyping
-1. Create `ironclaw_flutter` crate.
+1. Create `ironclaw_flutter` crate (the bridge).
 2. Define a minimal `init` and `chat` API.
 3. Verify `libsql` works on a target platform (e.g., macOS/Simulator).
 
-### Phase 2: Core Adapter
-1. Implement a `FlutterChannel` in `ironclaw` core to handle bidirectional communication over the bridge.
-2. Map IronClaw's `OutgoingResponse` and `StatusUpdate` to FRB-compatible structs.
+### Phase 2: Bridge Adapter (FlutterChannel)
+1. Implement the `FlutterChannel` struct in the bridge crate.
+2. Implement the `ironclaw::channels::Channel` trait for `FlutterChannel`.
+3. Map IronClaw's `OutgoingResponse` and `StatusUpdate` to FRB-compatible `ChatEvent` structs within the bridge.
+4. Ensure zero modifications are required in the `ironclaw` core.
 
 ### Phase 3: Flutter UI Development
 1. Build a responsive Chat UI.
