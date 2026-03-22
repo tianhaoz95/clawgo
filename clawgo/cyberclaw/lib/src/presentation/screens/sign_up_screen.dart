@@ -1,10 +1,79 @@
+import 'package:cyberclaw/src/core/auth_service.dart';
 import 'package:cyberclaw/src/core/theme.dart';
 import 'package:cyberclaw/src/presentation/widgets/scanline_background.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class SignUpScreen extends StatelessWidget {
+class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
+
+  @override
+  State<SignUpScreen> createState() => _SignUpScreenState();
+}
+
+class _SignUpScreenState extends State<SignUpScreen> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  final _codenameController = TextEditingController();
+  final _authService = AuthService();
+  bool _isLoading = false;
+  bool _agreeToTerms = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    _codenameController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleSignUp() async {
+    if (_emailController.text.isEmpty ||
+        _passwordController.text.isEmpty ||
+        _codenameController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all fields')),
+      );
+      return;
+    }
+
+    if (_passwordController.text != _confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Passwords do not match')),
+      );
+      return;
+    }
+
+    if (!_agreeToTerms) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please agree to the override terms')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    try {
+      final credential = await _authService.signUp(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+      );
+      if (credential?.user != null) {
+        await credential!.user!.updateDisplayName(_codenameController.text);
+      }
+      if (mounted) context.go('/chat');
+    } on FirebaseAuthException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message ?? 'Registration failed')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,9 +98,8 @@ class SignUpScreen extends StatelessWidget {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withOpacity(0.5),
+                      color:
+                          Theme.of(context).colorScheme.primary.withOpacity(0.5),
                       blurRadius: 4,
                     ),
                   ],
@@ -62,12 +130,13 @@ class SignUpScreen extends StatelessWidget {
                   Text(
                     'ENROLLMENT_UPLINK_STABLE',
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      fontSize: 9,
-                      letterSpacing: 2,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withOpacity(0.6),
-                    ),
+                          fontSize: 9,
+                          letterSpacing: 2,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withOpacity(0.6),
+                        ),
                   ),
                 ],
               ),
@@ -98,11 +167,12 @@ class SignUpScreen extends StatelessWidget {
                             children: [
                               Text(
                                 'UNAUTHORIZED ACCESS PROHIBITED',
-                                style: Theme.of(context).textTheme.labelSmall
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelSmall
                                     ?.copyWith(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.primary,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
                                       fontWeight: FontWeight.bold,
                                       letterSpacing: 3,
                                       fontSize: 10,
@@ -125,9 +195,9 @@ class SignUpScreen extends StatelessWidget {
                                   Container(
                                     height: 4,
                                     width: 48,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.secondaryContainer,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .secondaryContainer,
                                   ),
                                   const SizedBox(width: 12),
                                   Text(
@@ -138,9 +208,9 @@ class SignUpScreen extends StatelessWidget {
                                         ?.copyWith(
                                           fontSize: 10,
                                           letterSpacing: 1,
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.outline,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .outline,
                                         ),
                                   ),
                                 ],
@@ -151,7 +221,18 @@ class SignUpScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 48),
                       // Enrollment Form
-                      const _SignUpForm(),
+                      _SignUpForm(
+                        emailController: _emailController,
+                        passwordController: _passwordController,
+                        confirmPasswordController: _confirmPasswordController,
+                        codenameController: _codenameController,
+                        agreeToTerms: _agreeToTerms,
+                        onTermsChanged: (value) {
+                          setState(() => _agreeToTerms = value ?? false);
+                        },
+                        isLoading: _isLoading,
+                        onSignUp: _handleSignUp,
+                      ),
                     ],
                   ),
                 ),
@@ -165,27 +246,47 @@ class SignUpScreen extends StatelessWidget {
 }
 
 class _SignUpForm extends StatelessWidget {
-  const _SignUpForm();
+  final TextEditingController emailController;
+  final TextEditingController passwordController;
+  final TextEditingController confirmPasswordController;
+  final TextEditingController codenameController;
+  final bool agreeToTerms;
+  final ValueChanged<bool?> onTermsChanged;
+  final bool isLoading;
+  final VoidCallback onSignUp;
+
+  const _SignUpForm({
+    required this.emailController,
+    required this.passwordController,
+    required this.confirmPasswordController,
+    required this.codenameController,
+    required this.agreeToTerms,
+    required this.onTermsChanged,
+    required this.isLoading,
+    required this.onSignUp,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const _FormField(
+        _FormField(
           label: 'CODENAME',
           hintText: 'ENTER_IDENTIFIER',
           icon: Icons.person,
+          controller: codenameController,
         ),
         const SizedBox(height: 24),
-        const _FormField(
+        _FormField(
           label: 'SECURE_EMAIL',
           hintText: 'USER@IRONCLAW.SYS',
           icon: Icons.alternate_email,
           keyboardType: TextInputType.emailAddress,
+          controller: emailController,
         ),
         const SizedBox(height: 24),
-        const Row(
+        Row(
           children: [
             Expanded(
               child: _FormField(
@@ -193,15 +294,17 @@ class _SignUpForm extends StatelessWidget {
                 hintText: '********',
                 icon: Icons.lock,
                 obscureText: true,
+                controller: passwordController,
               ),
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             Expanded(
               child: _FormField(
                 label: 'REPEAT_PASSCODE',
                 hintText: '********',
                 icon: Icons.security,
                 obscureText: true,
+                controller: confirmPasswordController,
               ),
             ),
           ],
@@ -215,11 +318,10 @@ class _SignUpForm extends StatelessWidget {
               width: 24,
               height: 24,
               child: Checkbox(
-                value: false,
-                onChanged: (_) {},
+                value: agreeToTerms,
+                onChanged: onTermsChanged,
                 side: BorderSide(
-                  color: Theme.of(context).colorScheme.outlineVariant,
-                ),
+                    color: Theme.of(context).colorScheme.outlineVariant),
               ),
             ),
             const SizedBox(width: 12),
@@ -230,19 +332,19 @@ class _SignUpForm extends StatelessWidget {
                   Text(
                     'AGREE_TO_OVERRIDE_TERMS',
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      fontSize: 10,
-                      letterSpacing: 1,
-                      color: Theme.of(context).colorScheme.outline,
-                    ),
+                          fontSize: 10,
+                          letterSpacing: 1,
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'I acknowledge total system control protocols and sensory data logging.',
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      fontSize: 9,
-                      fontStyle: FontStyle.italic,
-                      color: Theme.of(context).colorScheme.outlineVariant,
-                    ),
+                          fontSize: 9,
+                          fontStyle: FontStyle.italic,
+                          color: Theme.of(context).colorScheme.outlineVariant,
+                        ),
                   ),
                 ],
               ),
@@ -256,21 +358,29 @@ class _SignUpForm extends StatelessWidget {
           child: SizedBox(
             height: 60,
             child: ElevatedButton(
-              onPressed: () => context.go('/chat'),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'REGISTER_UNIT',
-                    style: TextStyle(
-                      letterSpacing: -0.5,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 18,
+              onPressed: isLoading ? null : onSignUp,
+              child: isLoading
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppTheme.onPrimaryContainer,
+                      ),
+                    )
+                  : const Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'REGISTER_UNIT',
+                          style: TextStyle(
+                              letterSpacing: -0.5,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 18),
+                        ),
+                        Icon(Icons.arrow_forward),
+                      ],
                     ),
-                  ),
-                  Icon(Icons.arrow_forward),
-                ],
-              ),
             ),
           ),
         ),
@@ -280,10 +390,10 @@ class _SignUpForm extends StatelessWidget {
           child: RichText(
             text: TextSpan(
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                fontSize: 10,
-                letterSpacing: 2,
-                color: Theme.of(context).colorScheme.outlineVariant,
-              ),
+                    fontSize: 10,
+                    letterSpacing: 2,
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                  ),
               children: [
                 const TextSpan(text: 'ALREADY_AUTHORIZED? '),
                 TextSpan(
@@ -308,6 +418,7 @@ class _FormField extends StatelessWidget {
   final IconData icon;
   final bool obscureText;
   final TextInputType? keyboardType;
+  final TextEditingController? controller;
 
   const _FormField({
     required this.label,
@@ -315,6 +426,7 @@ class _FormField extends StatelessWidget {
     required this.icon,
     this.obscureText = false,
     this.keyboardType,
+    this.controller,
   });
 
   @override
@@ -325,19 +437,20 @@ class _FormField extends StatelessWidget {
         Text(
           label,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            fontSize: 10,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 2,
-            color: Theme.of(context).colorScheme.outline,
-          ),
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 2,
+                color: Theme.of(context).colorScheme.outline,
+              ),
         ),
         const SizedBox(height: 8),
         TextField(
+          controller: controller,
           obscureText: obscureText,
           keyboardType: keyboardType,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium?.copyWith(letterSpacing: 1.5),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                letterSpacing: 1.5,
+              ),
           decoration: InputDecoration(
             hintText: hintText,
             prefixIcon: Icon(icon, size: 18),

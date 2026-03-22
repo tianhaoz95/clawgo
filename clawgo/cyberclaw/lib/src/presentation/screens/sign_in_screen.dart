@@ -1,10 +1,55 @@
+import 'package:cyberclaw/src/core/auth_service.dart';
 import 'package:cyberclaw/src/core/theme.dart';
 import 'package:cyberclaw/src/presentation/widgets/scanline_background.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class SignInScreen extends StatelessWidget {
+class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
+
+  @override
+  State<SignInScreen> createState() => _SignInScreenState();
+}
+
+class _SignInScreenState extends State<SignInScreen> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _authService = AuthService();
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleSignIn() async {
+    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all fields')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    try {
+      await _authService.signIn(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+      );
+      if (mounted) context.go('/chat');
+    } on FirebaseAuthException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message ?? 'Authentication failed')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,15 +67,15 @@ class SignInScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   border: Border(
                     left: BorderSide(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.outlineVariant.withOpacity(0.3),
-                    ),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .outlineVariant
+                            .withOpacity(0.3)),
                     top: BorderSide(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.outlineVariant.withOpacity(0.3),
-                    ),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .outlineVariant
+                            .withOpacity(0.3)),
                   ),
                 ),
               ),
@@ -44,15 +89,15 @@ class SignInScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   border: Border(
                     right: BorderSide(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.outlineVariant.withOpacity(0.3),
-                    ),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .outlineVariant
+                            .withOpacity(0.3)),
                     bottom: BorderSide(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.outlineVariant.withOpacity(0.3),
-                    ),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .outlineVariant
+                            .withOpacity(0.3)),
                   ),
                 ),
               ),
@@ -70,9 +115,10 @@ class SignInScreen extends StatelessWidget {
                     end: Alignment.bottomCenter,
                     colors: [
                       Colors.transparent,
-                      Theme.of(
-                        context,
-                      ).colorScheme.primaryContainer.withOpacity(0.2),
+                      Theme.of(context)
+                          .colorScheme
+                          .primaryContainer
+                          .withOpacity(0.2),
                       Colors.transparent,
                     ],
                   ),
@@ -91,9 +137,10 @@ class SignInScreen extends StatelessWidget {
                     end: Alignment.bottomCenter,
                     colors: [
                       Colors.transparent,
-                      Theme.of(
-                        context,
-                      ).colorScheme.secondaryContainer.withOpacity(0.2),
+                      Theme.of(context)
+                          .colorScheme
+                          .secondaryContainer
+                          .withOpacity(0.2),
                       Colors.transparent,
                     ],
                   ),
@@ -115,9 +162,8 @@ class SignInScreen extends StatelessWidget {
                       ClipPath(
                         clipper: BeveledEdgeClipper(cutSize: 20),
                         child: Container(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.surfaceContainerLow,
+                          color:
+                              Theme.of(context).colorScheme.surfaceContainerLow,
                           padding: const EdgeInsets.all(32),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -128,13 +174,18 @@ class SignInScreen extends StatelessWidget {
                                 child: Container(
                                   width: 64,
                                   height: 4,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.primaryContainer,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .primaryContainer,
                                 ),
                               ),
                               const SizedBox(height: 24),
-                              const _SignInForm(),
+                              _SignInForm(
+                                emailController: _emailController,
+                                passwordController: _passwordController,
+                                isLoading: _isLoading,
+                                onSignIn: _handleSignIn,
+                              ),
                               const SizedBox(height: 40),
                               const _FooterLinks(),
                             ],
@@ -172,9 +223,8 @@ class _HeaderArea extends StatelessWidget {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.primary.withOpacity(0.2),
+                    color:
+                        Theme.of(context).colorScheme.primary.withOpacity(0.2),
                     blurRadius: 20,
                     spreadRadius: 5,
                   ),
@@ -187,9 +237,7 @@ class _HeaderArea extends StatelessWidget {
                 border: Border.all(
                   color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
                 ),
-                color: Theme.of(
-                  context,
-                ).colorScheme.background.withOpacity(0.5),
+                color: Theme.of(context).colorScheme.background.withOpacity(0.5),
               ),
               child: Image.asset(
                 'assets/images/logo.png',
@@ -204,9 +252,8 @@ class _HeaderArea extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           decoration: BoxDecoration(
-            color: Theme.of(
-              context,
-            ).colorScheme.primaryContainer.withOpacity(0.1),
+            color:
+                Theme.of(context).colorScheme.primaryContainer.withOpacity(0.1),
             border: Border(
               left: BorderSide(
                 color: Theme.of(context).colorScheme.primaryContainer,
@@ -217,18 +264,19 @@ class _HeaderArea extends StatelessWidget {
           child: Text(
             'IRONCLAW COMMAND UNIT',
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              color: Theme.of(context).colorScheme.primaryContainer,
-              fontSize: 12,
-            ),
+                  color: Theme.of(context).colorScheme.primaryContainer,
+                  fontSize: 12,
+                ),
           ),
         ),
         const SizedBox(height: 16),
         RichText(
           textAlign: TextAlign.center,
           text: TextSpan(
-            style: Theme.of(
-              context,
-            ).textTheme.displayLarge?.copyWith(fontSize: 48, height: 0.9),
+            style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                  fontSize: 48,
+                  height: 0.9,
+                ),
             children: [
               const TextSpan(text: 'ACCESS_\n'),
               TextSpan(
@@ -237,9 +285,10 @@ class _HeaderArea extends StatelessWidget {
                   color: Theme.of(context).colorScheme.primaryContainer,
                   shadows: [
                     Shadow(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primaryContainer.withOpacity(0.3),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primaryContainer
+                          .withOpacity(0.3),
                       blurRadius: 10,
                     ),
                   ],
@@ -254,7 +303,17 @@ class _HeaderArea extends StatelessWidget {
 }
 
 class _SignInForm extends StatelessWidget {
-  const _SignInForm();
+  final TextEditingController emailController;
+  final TextEditingController passwordController;
+  final bool isLoading;
+  final VoidCallback onSignIn;
+
+  const _SignInForm({
+    required this.emailController,
+    required this.passwordController,
+    required this.isLoading,
+    required this.onSignIn,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -267,17 +326,19 @@ class _SignInForm extends StatelessWidget {
             Text(
               'OPERATOR_IDENTITY',
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: Theme.of(context).colorScheme.outline,
-                letterSpacing: 2,
-              ),
+                    color: Theme.of(context).colorScheme.outline,
+                    letterSpacing: 2,
+                  ),
             ),
             const SizedBox(height: 8),
             TextField(
-              style: Theme.of(
-                context,
-              ).textTheme.headlineSmall?.copyWith(letterSpacing: 2),
+              controller: emailController,
+              keyboardType: TextInputType.emailAddress,
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    letterSpacing: 2,
+                  ),
               decoration: const InputDecoration(
-                hintText: 'OPERATOR_ID',
+                hintText: 'USER@IRONCLAW.SYS',
                 suffixIcon: Icon(Icons.fingerprint, size: 20),
               ),
             ),
@@ -290,16 +351,17 @@ class _SignInForm extends StatelessWidget {
             Text(
               'ENCRYPTION_SEQUENCE',
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: Theme.of(context).colorScheme.outline,
-                letterSpacing: 2,
-              ),
+                    color: Theme.of(context).colorScheme.outline,
+                    letterSpacing: 2,
+                  ),
             ),
             const SizedBox(height: 8),
             TextField(
+              controller: passwordController,
               obscureText: true,
-              style: Theme.of(
-                context,
-              ).textTheme.headlineSmall?.copyWith(letterSpacing: 8),
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    letterSpacing: 8,
+                  ),
               decoration: const InputDecoration(
                 hintText: 'ENCRYPTION_KEY',
                 suffixIcon: Icon(Icons.security, size: 20),
@@ -311,21 +373,28 @@ class _SignInForm extends StatelessWidget {
         SizedBox(
           height: 60,
           child: ElevatedButton(
-            onPressed: () => context.go('/chat'),
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'INITIATE_SESSION',
-                  style: TextStyle(
-                    letterSpacing: 2,
-                    fontWeight: FontWeight.bold,
+            onPressed: isLoading ? null : onSignIn,
+            child: isLoading
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppTheme.onPrimaryContainer,
+                    ),
+                  )
+                : const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'INITIATE_SESSION',
+                        style: TextStyle(
+                            letterSpacing: 2, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(width: 12),
+                      Icon(Icons.bolt, size: 20),
+                    ],
                   ),
-                ),
-                SizedBox(width: 12),
-                Icon(Icons.bolt, size: 20),
-              ],
-            ),
           ),
         ),
       ],
@@ -343,9 +412,7 @@ class _FooterLinks extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border(
           top: BorderSide(
-            color: Theme.of(
-              context,
-            ).colorScheme.outlineVariant.withOpacity(0.1),
+            color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.1),
           ),
         ),
       ),
@@ -362,9 +429,9 @@ class _FooterLinks extends StatelessWidget {
             child: Text(
               'PROTOCOL_RECOVERY',
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: Theme.of(context).colorScheme.outlineVariant,
-                letterSpacing: 1.5,
-              ),
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                    letterSpacing: 1.5,
+                  ),
             ),
           ),
           TextButton(
@@ -377,11 +444,10 @@ class _FooterLinks extends StatelessWidget {
             child: Text(
               'NEW_OPERATOR?',
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: Theme.of(
-                  context,
-                ).colorScheme.secondaryContainer.withOpacity(0.6),
-                letterSpacing: 1.5,
-              ),
+                    color: Theme.of(context).colorScheme.secondaryContainer
+                        .withOpacity(0.6),
+                    letterSpacing: 1.5,
+                  ),
             ),
           ),
         ],
@@ -403,9 +469,10 @@ class _TerminalReadoutMeta extends StatelessWidget {
         children: [
           Text(
             'NODE: OBSIDIAN_MAIN_01\nUPTIME: 492.12.04\nLAT: 35.6895° N',
-            style: Theme.of(
-              context,
-            ).textTheme.labelSmall?.copyWith(fontSize: 9, height: 1.5),
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  fontSize: 9,
+                  height: 1.5,
+                ),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -413,37 +480,23 @@ class _TerminalReadoutMeta extends StatelessWidget {
               Row(
                 children: [
                   Container(
-                    width: 4,
-                    height: 4,
-                    color: AppTheme.primaryContainer,
-                  ),
+                      width: 4, height: 4, color: AppTheme.primaryContainer),
                   const SizedBox(width: 2),
                   Container(
-                    width: 4,
-                    height: 4,
-                    color: AppTheme.primaryContainer,
-                  ),
+                      width: 4, height: 4, color: AppTheme.primaryContainer),
                   const SizedBox(width: 2),
-                  Container(
-                    width: 4,
-                    height: 4,
-                    color: AppTheme.outlineVariant,
-                  ),
+                  Container(width: 4, height: 4, color: AppTheme.outlineVariant),
                   const SizedBox(width: 2),
-                  Container(
-                    width: 4,
-                    height: 4,
-                    color: AppTheme.outlineVariant,
-                  ),
+                  Container(width: 4, height: 4, color: AppTheme.outlineVariant),
                 ],
               ),
               const SizedBox(height: 4),
               Text(
                 'OS_VER: OPENCLAW_CORE_v.4.1',
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  fontSize: 9,
-                  letterSpacing: -0.5,
-                ),
+                      fontSize: 9,
+                      letterSpacing: -0.5,
+                    ),
               ),
             ],
           ),

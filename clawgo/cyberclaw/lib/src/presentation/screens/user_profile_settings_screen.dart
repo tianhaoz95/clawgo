@@ -1,21 +1,78 @@
+import 'package:cyberclaw/src/core/auth_service.dart';
 import 'package:cyberclaw/src/core/theme.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class UserProfileSettingsScreen extends StatelessWidget {
+class UserProfileSettingsScreen extends StatefulWidget {
   const UserProfileSettingsScreen({super.key});
 
   @override
+  State<UserProfileSettingsScreen> createState() =>
+      _UserProfileSettingsScreenState();
+}
+
+class _UserProfileSettingsScreenState extends State<UserProfileSettingsScreen> {
+  final _authService = AuthService();
+  bool _isSigningOut = false;
+  bool _isDeletingAccount = false;
+
+  Future<void> _handleSignOut() async {
+    setState(() => _isSigningOut = true);
+    await _authService.signOut();
+    if (mounted) context.go('/sign-in');
+  }
+
+  Future<void> _handleDeleteAccount() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppTheme.surfaceContainerLow,
+        title: const Text('CRITICAL_OVERRIDE'),
+        content: const Text(
+            'This will permanently delete your operator profile and all associated neural data. Proceed?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('ABORT'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary),
+            child: const Text('CONFIRM_DELETE'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      setState(() => _isDeletingAccount = true);
+      try {
+        await _authService.deleteAccount();
+        if (mounted) context.go('/sign-in');
+      } on FirebaseAuthException catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(e.message ?? 'Deletion failed')),
+          );
+        }
+      } finally {
+        if (mounted) setState(() => _isDeletingAccount = false);
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final user = _authService.currentUser;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: Theme.of(context).colorScheme.primary,
-          ),
+          icon: Icon(Icons.arrow_back,
+              color: Theme.of(context).colorScheme.primary),
           onPressed: () => context.pop(),
         ),
         title: Row(
@@ -25,10 +82,10 @@ class UserProfileSettingsScreen extends StatelessWidget {
             Text(
               'IRONCLAW CONTROL',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.w900,
-                fontSize: 20,
-              ),
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 20,
+                  ),
             ),
           ],
         ),
@@ -59,12 +116,17 @@ class UserProfileSettingsScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const _SectionHeader(title: 'Operator Profile'),
-                const _OperatorProfileCard(),
+                _OperatorProfileCard(user: user),
                 const SizedBox(height: 48),
                 const _SectionHeader(title: 'AI Agent Permissions'),
                 const _AiPermissionsCard(),
                 const SizedBox(height: 48),
-                const _AccountActions(),
+                _AccountActions(
+                  onSignOut: _handleSignOut,
+                  onDeleteAccount: _handleDeleteAccount,
+                  isSigningOut: _isSigningOut,
+                  isDeletingAccount: _isDeletingAccount,
+                ),
               ],
             ),
           ),
@@ -87,7 +149,7 @@ class _NavButton extends StatelessWidget {
         onPressed: () {},
         child: Container(
           decoration: isSelected
-              ? BoxDecoration(
+              ? const BoxDecoration(
                   border: Border(
                     bottom: BorderSide(color: AppTheme.primary, width: 2),
                   ),
@@ -97,12 +159,12 @@ class _NavButton extends StatelessWidget {
           child: Text(
             label,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: isSelected
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.secondary.withOpacity(0.7),
-              letterSpacing: 1,
-              fontWeight: FontWeight.bold,
-            ),
+                  color: isSelected
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.secondary.withOpacity(0.7),
+                  letterSpacing: 1,
+                  fontWeight: FontWeight.bold,
+                ),
           ),
         ),
       ),
@@ -123,18 +185,17 @@ class _SectionHeader extends StatelessWidget {
           Text(
             title.toUpperCase(),
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w900,
-              letterSpacing: 2,
-              fontSize: 18,
-            ),
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 2,
+                  fontSize: 18,
+                ),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Container(
               height: 1,
-              color: Theme.of(
-                context,
-              ).colorScheme.outlineVariant.withOpacity(0.2),
+              color:
+                  Theme.of(context).colorScheme.outlineVariant.withOpacity(0.2),
             ),
           ),
         ],
@@ -144,7 +205,8 @@ class _SectionHeader extends StatelessWidget {
 }
 
 class _OperatorProfileCard extends StatelessWidget {
-  const _OperatorProfileCard();
+  final User? user;
+  const _OperatorProfileCard({this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -161,21 +223,17 @@ class _OperatorProfileCard extends StatelessWidget {
                   width: 80,
                   height: 80,
                   decoration: BoxDecoration(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.surfaceContainerHighest,
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
                     border: Border.all(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withOpacity(0.3),
+                      color:
+                          Theme.of(context).colorScheme.primary.withOpacity(0.3),
                     ),
                   ),
                   child: Icon(
                     Icons.person,
                     size: 40,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.primary.withOpacity(0.5),
+                    color:
+                        Theme.of(context).colorScheme.primary.withOpacity(0.5),
                   ),
                 ),
                 Positioned(
@@ -195,46 +253,42 @@ class _OperatorProfileCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'OPERATOR_01',
+                    user?.displayName?.toUpperCase() ?? 'OPERATOR_UNKNOWN',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: -0.5,
-                    ),
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: -0.5,
+                        ),
                   ),
                   Text(
-                    'OP_01@IRONCLAW.NETWORK',
+                    user?.email?.toUpperCase() ?? 'UNLINKED_EMAIL',
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.outline.withOpacity(0.6),
-                      letterSpacing: 2,
-                      fontSize: 10,
-                    ),
+                          color: Theme.of(context).colorScheme.outline.withOpacity(0.6),
+                          letterSpacing: 2,
+                          fontSize: 10,
+                        ),
                   ),
                   const SizedBox(height: 12),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 2,
-                    ),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withOpacity(0.1),
+                      color:
+                          Theme.of(context).colorScheme.primary.withOpacity(0.1),
                       border: Border.all(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.primary.withOpacity(0.2),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .primary
+                            .withOpacity(0.2),
                       ),
                     ),
                     child: Text(
                       'LVL 4 CLEARANCE',
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 10,
-                      ),
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 10,
+                          ),
                     ),
                   ),
                 ],
@@ -269,7 +323,7 @@ class _AiPermissionsCard extends StatelessWidget {
               ),
               content: Wrap(
                 spacing: 8,
-                children: [
+                children: const [
                   _Badge(text: '/root/sys_alpha'),
                   _Badge(text: '/mnt/openclaw_data'),
                 ],
@@ -324,11 +378,8 @@ class _PermissionTile extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(
-          icon,
-          color: Theme.of(context).colorScheme.secondaryContainer,
-          size: 24,
-        ),
+        Icon(icon,
+            color: Theme.of(context).colorScheme.secondaryContainer, size: 24),
         const SizedBox(width: 16),
         Expanded(
           child: Column(
@@ -337,21 +388,23 @@ class _PermissionTile extends StatelessWidget {
               Text(
                 title.toUpperCase(),
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                ),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
               ),
               if (subtitle.isNotEmpty)
                 Text(
                   subtitle.toUpperCase(),
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.outline.withOpacity(0.6),
-                    fontSize: 9,
-                  ),
+                        color:
+                            Theme.of(context).colorScheme.outline.withOpacity(0.6),
+                        fontSize: 9,
+                      ),
                 ),
-              if (content != null) ...[const SizedBox(height: 12), content!],
+              if (content != null) ...[
+                const SizedBox(height: 12),
+                content!,
+              ],
             ],
           ),
         ),
@@ -372,9 +425,8 @@ class _Badge extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
         border: Border.all(
-          color: Theme.of(
-            context,
-          ).colorScheme.secondaryContainer.withOpacity(0.2),
+          color:
+              Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.2),
         ),
       ),
       child: Text(
@@ -390,7 +442,17 @@ class _Badge extends StatelessWidget {
 }
 
 class _AccountActions extends StatelessWidget {
-  const _AccountActions();
+  final VoidCallback onSignOut;
+  final VoidCallback onDeleteAccount;
+  final bool isSigningOut;
+  final bool isDeletingAccount;
+
+  const _AccountActions({
+    required this.onSignOut,
+    required this.onDeleteAccount,
+    required this.isSigningOut,
+    required this.isDeletingAccount,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -400,50 +462,65 @@ class _AccountActions extends StatelessWidget {
         SizedBox(
           height: 56,
           child: ElevatedButton(
-            onPressed: () => context.go('/sign-in'),
+            onPressed: isSigningOut ? null : onSignOut,
             style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.primary,
               foregroundColor: Theme.of(context).colorScheme.onPrimary,
             ),
-            child: const Text(
-              'SIGN OUT',
-              style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 2),
-            ),
+            child: isSigningOut
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppTheme.onPrimary,
+                    ),
+                  )
+                : const Text(
+                    'SIGN OUT',
+                    style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 2),
+                  ),
           ),
         ),
         const SizedBox(height: 16),
         SizedBox(
           height: 48,
           child: OutlinedButton(
-            onPressed: () {},
+            onPressed: isDeletingAccount ? null : onDeleteAccount,
             style: OutlinedButton.styleFrom(
               side: BorderSide(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.4),
-              ),
-              foregroundColor: Theme.of(
-                context,
-              ).colorScheme.primary.withOpacity(0.7),
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.4)),
+              foregroundColor:
+                  Theme.of(context).colorScheme.primary.withOpacity(0.7),
             ),
-            child: RichText(
-              text: TextSpan(
-                style: const TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1,
-                ),
-                children: [
-                  const TextSpan(text: 'DELETE ACCOUNT '),
-                  TextSpan(
-                    text: '| CRITICAL ACTION',
-                    style: TextStyle(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withOpacity(0.4),
+            child: isDeletingAccount
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppTheme.primary,
+                    ),
+                  )
+                : RichText(
+                    text: TextSpan(
+                      style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1),
+                      children: [
+                        const TextSpan(text: 'DELETE ACCOUNT '),
+                        TextSpan(
+                          text: '| CRITICAL ACTION',
+                          style: TextStyle(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primary
+                                  .withOpacity(0.4)),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ),
           ),
         ),
       ],
