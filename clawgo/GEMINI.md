@@ -40,6 +40,10 @@ Run these commands within the `cyberclaw/` directory:
 - **Run Application**: `flutter run` (Supports macOS, iOS, Android, and Web)
 - **Generate Bridge Bindings**: `flutter_rust_bridge_codegen generate`
 - **Build Production**: `flutter build <platform>`
+- **Deploy to Firebase App Distribution (Android)**:
+  1. Increment version and build number in `pubspec.yaml`.
+  2. Build APK: `flutter build apk --release`.
+  3. Deploy: `firebase appdistribution:distribute build/app/outputs/flutter-apk/app-release.apk --app <ANDROID_APP_ID> --groups <TESTER_GROUPS> --release-notes "<RELEASE_NOTES>"` (Get App ID from `lib/firebase_options.dart`).
 
 ### IronClaw (Core - Root Directory)
 Run these commands from the project root:
