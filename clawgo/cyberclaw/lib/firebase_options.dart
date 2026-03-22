@@ -42,17 +42,17 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyCrs2VWv4BxLDqel_p0dM9AgzygGyaI-hc',
-    appId: '1:782078404687:web:e8368f075ccf6a5238e23a',
+    appId: '1:782078404687:web:8708dff91773589838e23a',
     messagingSenderId: '782078404687',
     projectId: 'cyberclaw-go',
     authDomain: 'cyberclaw-go.firebaseapp.com',
     storageBucket: 'cyberclaw-go.firebasestorage.app',
-    measurementId: 'G-C77FTBNRFL',
+    measurementId: 'G-3P3ZXLMD2Z',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCcZVQd5uQvY4Gz8QpsAq45fjhMe2vC4FA',
-    appId: '1:782078404687:android:488131a589ee106b38e23a',
+    appId: '1:782078404687:android:03bd0eab1ef3200138e23a',
     messagingSenderId: '782078404687',
     projectId: 'cyberclaw-go',
     storageBucket: 'cyberclaw-go.firebasestorage.app',
@@ -60,7 +60,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyDA0n-TbPf6bQ06ICi_hZHkOsLoseUTOWg',
-    appId: '1:782078404687:ios:e476658780e6da3a38e23a',
+    appId: '1:782078404687:ios:16fb36dc108c79c438e23a',
     messagingSenderId: '782078404687',
     projectId: 'cyberclaw-go',
     storageBucket: 'cyberclaw-go.firebasestorage.app',
@@ -69,7 +69,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyDA0n-TbPf6bQ06ICi_hZHkOsLoseUTOWg',
-    appId: '1:782078404687:ios:e476658780e6da3a38e23a',
+    appId: '1:782078404687:ios:16fb36dc108c79c438e23a',
     messagingSenderId: '782078404687',
     projectId: 'cyberclaw-go',
     storageBucket: 'cyberclaw-go.firebasestorage.app',
@@ -78,11 +78,12 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions windows = FirebaseOptions(
     apiKey: 'AIzaSyCrs2VWv4BxLDqel_p0dM9AgzygGyaI-hc',
-    appId: '1:782078404687:web:213ef388a9488d6138e23a',
+    appId: '1:782078404687:web:488243014c76603b38e23a',
     messagingSenderId: '782078404687',
     projectId: 'cyberclaw-go',
     authDomain: 'cyberclaw-go.firebaseapp.com',
     storageBucket: 'cyberclaw-go.firebasestorage.app',
-    measurementId: 'G-PFT3ZMX3GT',
+    measurementId: 'G-LRHF8GYNLC',
   );
+
 }
