@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>IRONCLAW CONTROL - NEW_RECRUIT</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&amp;family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "outline": "#ac878f",
+              "on-tertiary-container": "#470064",
+              "on-tertiary": "#520072",
+              "inverse-primary": "#ba005b",
+              "error-container": "#93000a",
+              "secondary-container": "#00eefc",
+              "on-secondary": "#00363a",
+              "tertiary-container": "#cd5dff",
+              "inverse-surface": "#e5e2e1",
+              "background": "#131313",
+              "surface-container-highest": "#353534",
+              "secondary": "#d3fbff",
+              "primary-fixed-dim": "#ffb1c4",
+              "surface-container-low": "#1c1b1b",
+              "surface": "#131313",
+              "surface-tint": "#ffb1c4",
+              "on-tertiary-fixed": "#320047",
+              "primary-container": "#ff4a8d",
+              "on-tertiary-fixed-variant": "#74009f",
+              "primary-fixed": "#ffd9e1",
+              "on-secondary-fixed-variant": "#004f54",
+              "on-error-container": "#ffdad6",
+              "on-error": "#690005",
+              "on-surface-variant": "#e5bcc5",
+              "outline-variant": "#5c3f46",
+              "on-surface": "#e5e2e1",
+              "primary": "#ffb1c4",
+              "on-secondary-container": "#00686f",
+              "surface-container": "#201f1f",
+              "secondary-fixed": "#7df4ff",
+              "tertiary-fixed": "#f8d8ff",
+              "surface-container-lowest": "#0e0e0e",
+              "on-background": "#e5e2e1",
+              "surface-variant": "#353534",
+              "on-secondary-fixed": "#002022",
+              "error": "#ffb4ab",
+              "on-primary-fixed": "#3f001a",
+              "on-primary-fixed-variant": "#8f0044",
+              "on-primary": "#65002e",
+              "on-primary-container": "#590028",
+              "inverse-on-surface": "#313030",
+              "tertiary": "#ebb2ff",
+              "secondary-fixed-dim": "#00dbe9",
+              "tertiary-fixed-dim": "#ebb2ff",
+              "surface-dim": "#131313",
+              "surface-container-high": "#2a2a2a",
+              "surface-bright": "#3a3939"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Manrope"],
+              "label": ["Space Grotesk"]
+            },
+            borderRadius: {"DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hard-edge-clip {
+            clip-path: polygon(0% 0%, 100% 0%, 100% 90%, 95% 100%, 0% 100%);
+        }
+        .header-clip {
+            clip-path: polygon(0% 0%, 100% 0%, 100% 80%, 98% 100%, 0% 100%);
+        }
+        .input-glow:focus-within {
+            box-shadow: 0 4px 15px -5px rgba(255, 74, 141, 0.4);
+        }
+        .bg-scanlines {
+            background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.1) 50%);
+            background-size: 100% 4px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-primary-container selection:text-on-primary-container overflow-hidden">
+<!-- Top Navigation Suppression: Not rendered per Rule (Transactional Screen) -->
+<main class="relative min-h-screen flex items-center justify-center p-6 bg-scanlines">
+<!-- Ambient Decorative Elements -->
+<div class="absolute top-10 left-10 opacity-20 hidden lg:block">
+<div class="text-[8px] font-label text-secondary tracking-[0.2em] space-y-1">
+<p>SYSTEM_STATUS: STANDBY</p>
+<p>ENCRYPTION: RSA_4096_ACTIVE</p>
+<p>NODE_ID: IX-0092-B</p>
+</div>
+</div>
+<!-- Enrollment Terminal -->
+<div class="w-full max-w-md z-10">
+<!-- Header Cluster -->
+<header class="mb-10 text-left border-l-4 border-primary pl-6 py-2">
+<h2 class="font-label text-xs font-bold tracking-[0.3em] text-primary mb-1">UNAUTHORIZED ACCESS PROHIBITED</h2>
+<h1 class="font-headline font-black tracking-tighter text-on-surface text-3xl">NEW_RECRUIT</h1>
+<div class="mt-4 flex items-center gap-3">
+<span class="h-1 w-12 bg-secondary-container"></span>
+<span class="font-label text-[10px] tracking-widest text-outline">ESTABLISHING SECURE UPLINK...</span>
+</div>
+</header>
+<!-- Enrollment Form -->
+<form class="space-y-6">
+<!-- Field: Codename -->
+<div class="relative group">
+<label class="block font-label text-[10px] font-bold tracking-widest text-outline mb-2 group-focus-within:text-primary transition-colors">CODENAME</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-0 text-outline-variant text-lg">person_filled</span>
+<input class="w-full bg-surface-container-lowest border-0 border-b-2 border-outline-variant py-3 pl-8 pr-4 text-sm font-label tracking-wider placeholder:text-outline-variant/50 focus:ring-0 focus:border-primary transition-all duration-300 outline-none" placeholder="ENTER_IDENTIFIER" type="text"/>
+</div>
+</div>
+<!-- Field: Email -->
+<div class="relative group">
+<label class="block font-label text-[10px] font-bold tracking-widest text-outline mb-2 group-focus-within:text-primary transition-colors">SECURE_EMAIL</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-0 text-outline-variant text-lg">alternate_email</span>
+<input class="w-full bg-surface-container-lowest border-0 border-b-2 border-outline-variant py-3 pl-8 pr-4 text-sm font-label tracking-wider placeholder:text-outline-variant/50 focus:ring-0 focus:border-primary transition-all duration-300 outline-none" placeholder="USER@IRONCLAW.SYS" type="email"/>
+</div>
+</div>
+<!-- Field Grid: Passcodes -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="relative group">
+<label class="block font-label text-[10px] font-bold tracking-widest text-outline mb-2 group-focus-within:text-primary transition-colors">AUTHORIZATION_PASSCODE</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-0 text-outline-variant text-lg">lock</span>
+<input class="w-full bg-surface-container-lowest border-0 border-b-2 border-outline-variant py-3 pl-8 pr-4 text-sm font-label tracking-wider placeholder:text-outline-variant/50 focus:ring-0 focus:border-primary transition-all duration-300 outline-none" placeholder="********" type="password"/>
+</div>
+</div>
+<div class="relative group">
+<label class="block font-label text-[10px] font-bold tracking-widest text-outline mb-2 group-focus-within:text-primary transition-colors">REPEAT_PASSCODE</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-0 text-outline-variant text-lg">security</span>
+<input class="w-full bg-surface-container-lowest border-0 border-b-2 border-outline-variant py-3 pl-8 pr-4 text-sm font-label tracking-wider placeholder:text-outline-variant/50 focus:ring-0 focus:border-primary transition-all duration-300 outline-none" placeholder="********" type="password"/>
+</div>
+</div>
+</div>
+<!-- Checkbox: Terms -->
+<div class="pt-2 flex items-start gap-3">
+<div class="relative flex items-center mt-1">
+<input class="peer appearance-none w-4 h-4 border border-outline-variant bg-transparent checked:bg-primary checked:border-primary cursor-pointer transition-all" id="terms" type="checkbox"/>
+<span class="material-symbols-outlined absolute text-[12px] text-on-primary hidden peer-checked:block pointer-events-none left-0.5">check</span>
+</div>
+<label class="font-label text-[10px] tracking-wide text-outline leading-relaxed cursor-pointer hover:text-on-surface transition-colors uppercase" for="terms">
+                        AGREE_TO_OVERRIDE_TERMS <span class="text-outline-variant block mt-1 normal-case italic text-[9px]">I acknowledge total system control protocols and sensory data logging.</span>
+</label>
+</div>
+<!-- Action Section -->
+<div class="pt-8">
+<button class="w-full group relative overflow-hidden bg-primary-container text-on-primary-container font-headline font-black py-4 px-6 hard-edge-clip flex items-center justify-between hover:bg-primary transition-all active:scale-[0.98]" type="submit">
+<span class="tracking-tighter text-lg">REGISTER_UNIT</span>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+<!-- Glow Effect -->
+<div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+</button>
+<p class="mt-6 font-label text-[10px] tracking-[0.2em] text-center text-outline-variant">
+                        ALREADY_AUTHORIZED? <a class="text-secondary hover:text-primary transition-colors ml-2 underline underline-offset-4 decoration-secondary-container/30" href="#">LOG_IN_INTERFACE</a>
+</p>
+</div>
+</form>
+</div>
+<!-- Asymmetric Decorative Data Grid -->
+<div class="fixed bottom-0 right-0 w-1/3 h-64 pointer-events-none opacity-20 hidden md:block overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent"></div>
+<div class="p-8 font-label text-[8px] text-primary space-y-4">
+<div class="flex justify-between border-b border-primary/20 pb-1">
+<span>BIO_SCAN_DATA</span>
+<span>READY</span>
+</div>
+<div class="flex justify-between border-b border-primary/20 pb-1">
+<span>GEO_LOCATION</span>
+<span>ENCRYPTED</span>
+</div>
+<div class="flex justify-between border-b border-primary/20 pb-1">
+<span>NEURAL_LINK</span>
+<span>OFFLINE</span>
+</div>
+<div class="h-24 w-full bg-surface-container flex items-end gap-1 p-2">
+<div class="w-2 h-4 bg-primary/40"></div>
+<div class="w-2 h-8 bg-primary"></div>
+<div class="w-2 h-12 bg-primary"></div>
+<div class="w-2 h-6 bg-primary/60"></div>
+<div class="w-2 h-16 bg-primary"></div>
+<div class="w-2 h-10 bg-primary/80"></div>
+</div>
+</div>
+</div>
+</main>
+<!-- Visual Identity Accents -->
+<div class="fixed top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-secondary-container to-primary opacity-50 z-50"></div>
+<div class="fixed bottom-6 left-6 z-50">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_#ff4a8d]"></span>
+<span class="font-label text-[9px] tracking-[0.3em] text-primary/60">ENROLLMENT_UPLINK_STABLE</span>
+</div>
+</div>
+</body></html>

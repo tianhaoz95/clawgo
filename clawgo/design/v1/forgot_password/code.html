@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>IRONCLAW CONTROL | PROTOCOL_RECOVERY_SEQ</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&amp;family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "outline": "#ac878f",
+              "on-tertiary-container": "#470064",
+              "on-tertiary": "#520072",
+              "inverse-primary": "#ba005b",
+              "error-container": "#93000a",
+              "secondary-container": "#00eefc",
+              "on-secondary": "#00363a",
+              "tertiary-container": "#cd5dff",
+              "inverse-surface": "#e5e2e1",
+              "background": "#131313",
+              "surface-container-highest": "#353534",
+              "secondary": "#d3fbff",
+              "primary-fixed-dim": "#ffb1c4",
+              "surface-container-low": "#1c1b1b",
+              "surface": "#131313",
+              "surface-tint": "#ffb1c4",
+              "on-tertiary-fixed": "#320047",
+              "primary-container": "#ff4a8d",
+              "on-tertiary-fixed-variant": "#74009f",
+              "primary-fixed": "#ffd9e1",
+              "on-secondary-fixed-variant": "#004f54",
+              "on-error-container": "#ffdad6",
+              "on-error": "#690005",
+              "on-surface-variant": "#e5bcc5",
+              "outline-variant": "#5c3f46",
+              "on-surface": "#e5e2e1",
+              "primary": "#ffb1c4",
+              "on-secondary-container": "#00686f",
+              "surface-container": "#201f1f",
+              "secondary-fixed": "#7df4ff",
+              "tertiary-fixed": "#f8d8ff",
+              "surface-container-lowest": "#0e0e0e",
+              "on-background": "#e5e2e1",
+              "surface-variant": "#353534",
+              "on-secondary-fixed": "#002022",
+              "error": "#ffb4ab",
+              "on-primary-fixed": "#3f001a",
+              "on-primary-fixed-variant": "#8f0044",
+              "on-primary": "#65002e",
+              "on-primary-container": "#590028",
+              "inverse-on-surface": "#313030",
+              "tertiary": "#ebb2ff",
+              "secondary-fixed-dim": "#00dbe9",
+              "tertiary-fixed-dim": "#ebb2ff",
+              "surface-dim": "#131313",
+              "surface-container-high": "#2a2a2a",
+              "surface-bright": "#3a3939"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Manrope"],
+              "label": ["Space Grotesk"]
+            },
+            borderRadius: {"DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .clip-path-tactical {
+            clip-path: polygon(0% 0%, 100% 0%, 100% 90%, 95% 100%, 0% 100%);
+        }
+        .clip-path-header {
+            clip-path: polygon(0% 0%, 100% 0%, 100% 90%, 98% 100%, 0% 100%);
+        }
+        .glow-border:focus-within {
+            box-shadow: 0 0 15px rgba(255, 74, 141, 0.3);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- Top Navigation Shell (Suppressed Labels, Logic Applied) -->
+<header class="bg-[#131313] dark:bg-[#131313] border-b-2 border-[#3a3939] dark:border-[#3a3939] shadow-[0_0_20px_rgba(255,74,141,0.15)] fixed top-0 w-full z-50 clip-path-header">
+<div class="flex justify-between items-center w-full px-6 py-4">
+<div class="flex items-center gap-4">
+<a class="text-[#ff4a8d] active:skew-x-2 transition-transform" href="#">
+<span class="material-symbols-outlined">arrow_back</span>
+</a>
+<span class="font-['Space_Grotesk'] font-black tracking-[-0.05em] text-2xl text-[#ff4a8d]">IRONCLAW</span>
+</div>
+<div class="hidden md:flex gap-8 font-['Space_Grotesk'] uppercase tracking-[0.1rem] text-sm">
+<span class="text-[#3a3939]">TERMINAL</span>
+<span class="text-[#3a3939]">SECURITY</span>
+<span class="text-[#3a3939]">SETTINGS</span>
+</div>
+</div>
+</header>
+<main class="min-h-screen flex items-center justify-center px-4 pt-20">
+<!-- Recovery Module -->
+<div class="w-full max-w-md bg-surface-container-low p-[1px] relative overflow-hidden">
+<!-- Decorative HUD Elements -->
+<div class="absolute top-0 right-0 p-2 opacity-20">
+<div class="text-[8px] font-label uppercase tracking-widest text-secondary">system_error_0x442</div>
+<div class="text-[8px] font-label uppercase tracking-widest text-secondary">awaiting_input...</div>
+</div>
+<!-- Main Container Body -->
+<div class="bg-surface p-8 md:p-12 relative z-10 clip-path-tactical border-l-2 border-primary-container/30">
+<!-- Status Header -->
+<div class="mb-10">
+<div class="flex items-center gap-2 mb-2">
+<span class="h-[2px] w-8 bg-primary-container"></span>
+<span class="font-label text-[10px] tracking-[0.2em] text-primary">SECURE_RECOVERY_INTERFACE</span>
+</div>
+<h1 class="font-headline font-black tracking-tight text-on-surface leading-none mb-4 text-2xl">RECOVER_PROTOCOL</h1>
+<p class="font-body text-sm text-on-surface-variant tracking-wide leading-relaxed border-l border-outline-variant/40 pl-4 py-1">
+                        ENTER_SECURE_EMAIL_FOR_RESET_LINK
+                    </p>
+</div>
+<!-- Input Field -->
+<div class="space-y-8">
+<div class="relative group">
+<label class="block font-label text-[10px] tracking-widest text-outline mb-2" for="recovery_email">RECOVERY_EMAIL</label>
+<div class="relative flex items-center bg-surface-container-lowest border-b-2 border-outline-variant transition-all duration-300 focus-within:border-primary-container glow-border">
+<span class="material-symbols-outlined absolute left-3 text-outline-variant group-focus-within:text-primary transition-colors">alternate_email</span>
+<input class="w-full bg-transparent border-none py-4 pl-12 pr-4 text-on-surface placeholder:text-outline-variant/50 focus:ring-0 font-label tracking-widest uppercase text-sm" id="recovery_email" placeholder="IDENT_ID@NODE.OPS" required="" type="email"/>
+</div>
+</div>
+<!-- Actions -->
+<div class="space-y-4">
+<button class="w-full py-4 bg-primary-container text-on-primary-container font-headline font-bold tracking-widest uppercase text-sm hover:bg-primary-container/90 transition-all active:scale-[0.98] relative overflow-hidden group">
+<span class="relative z-10">SEND_RECOVERY_SIGNAL</span>
+<div class="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-500"></div>
+</button>
+<div class="flex justify-between items-center px-1">
+<a class="font-label text-[10px] tracking-widest text-outline hover:text-secondary transition-colors flex items-center gap-1 group" href="#">
+<span class="material-symbols-outlined text-[14px]">arrow_left</span>
+                                RETURN_TO_AUTH
+                            </a>
+<span class="font-label text-[10px] tracking-widest text-outline-variant">EST_RTT: 124MS</span>
+</div>
+</div>
+</div>
+<!-- Pulse Meter (UI Accent) -->
+<div class="mt-12 opacity-50">
+<div class="h-1 w-full bg-surface-container-highest">
+<div class="h-full w-[65%] bg-gradient-to-r from-primary-container to-secondary-container"></div>
+</div>
+<div class="flex justify-between mt-2 font-label text-[8px] text-outline-variant tracking-tighter">
+<span>SYS_IDLE</span>
+<span>LINKING_SATELLITE_UPLINK</span>
+<span>65%</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Visual Accents (Tactical Overlays) -->
+<div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+<!-- Scanline Effect -->
+<div class="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]"></div>
+<!-- Peripheral Glowing Data -->
+<div class="absolute top-1/4 left-10 hidden lg:block opacity-10">
+<div class="font-label text-xs space-y-2 text-primary">
+<div>// ENCRYPTION_MODE: AES_256</div>
+<div>// HANDSHAKE: IN_PROGRESS</div>
+<div>// ENTITY: IRONCLAW</div>
+</div>
+</div>
+<div class="absolute bottom-1/4 right-10 hidden lg:block opacity-10">
+<div class="font-label text-xs space-y-2 text-secondary text-right">
+<div>LOCATION: CLASSIFIED //</div>
+<div>PING: 0.02MS //</div>
+<div>SIGNAL: OPTIMAL //</div>
+</div>
+</div>
+</div>
+<!-- Background Image with data-alt -->
+<div class="fixed inset-0 z-[-1] opacity-20">
+<div class="w-full h-full bg-[#131313]" data-alt="Dark obsidian background with faint glowing hexagonal digital grid patterns"></div>
+</div>
+</body></html>
