@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:cyberclaw/src/rust/api/simple.dart';
+import 'package:cyberclaw/src/core/router.dart';
+import 'package:cyberclaw/src/core/theme.dart';
 import 'package:cyberclaw/src/rust/frb_generated.dart';
+import 'package:flutter/material.dart';
 
 Future<void> main() async {
   await RustLib.init();
@@ -12,15 +13,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: const Text('flutter_rust_bridge quickstart')),
-        body: Center(
-          child: Text(
-            'Action: Call Rust `greet("Tom")`\nResult: `${greet(name: "Tom")}`',
-          ),
-        ),
-      ),
+    return MaterialApp.router(
+      title: 'IRONCLAW CONTROL',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.darkTheme,
+      routerConfig: router,
     );
   }
 }
